@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
+const port = "8080"
 const apiToken = "your-secret-api-token"
 
 type PDU struct {
@@ -70,10 +70,6 @@ func main() {
 
 	http.HandleFunc("/submit-pdu", HandleSubmitPDU)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
 	log.Printf("Starting server on port %s...", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
