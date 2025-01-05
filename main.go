@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Configuration
 const apiToken = "your-secret-api-token"
 
 type PDU struct {
@@ -22,7 +21,6 @@ type PDU struct {
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 }
 
-// Database instance
 var db *gorm.DB
 
 func InitDatabase() {
@@ -41,7 +39,6 @@ type PDURequest struct {
 	RawPDU string `json:"raw_pdu"`
 }
 
-// HandleSubmitPDU handles POST requests to submit PDUs
 func HandleSubmitPDU(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") || strings.TrimPrefix(authHeader, "Bearer ") != apiToken {

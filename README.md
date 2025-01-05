@@ -1,0 +1,4 @@
+# PDU Logger
+This project saves Protocol Data Units (PDUs) submitted as JSON formatted requests to a sqlite database, it really is just that simple. I need to move the port and secret into a config.yaml still but for now just edit those values before compiling. This is to log PDUs from a SMS gateway I built for one of my clients. I wrote the PDU decoding library myself since all the ones I could find online seemed incomplete, and I wanted a server that my library can push PDUs to that it runs into issues decoding, be that unimplemented headers or a incorrect PDU format, I just need to be able to analyze them later.
+
+It really won't be useful for anyone else, but hey here it is if you still want it for some reason.
