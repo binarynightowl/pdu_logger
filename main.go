@@ -62,7 +62,10 @@ func HandleSubmitPDU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprint(w, "PDU saved successfully")
+	_, err := fmt.Fprint(w, "PDU saved successfully")
+	if err != nil {
+		return
+	}
 }
 
 func main() {
