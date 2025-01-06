@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -12,8 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const port = "8080"
-const apiToken = "your-secret-api-token"
+const (
+	port     = "8080"
+	apiToken = "your-secret-api-token"
+)
 
 type PDU struct {
 	ID        uint      `gorm:"primaryKey" json:"-"`
@@ -39,30 +40,46 @@ type PDURequest struct {
 	RawPDU string `json:"raw_pdu"`
 }
 
+func jsonResponse(w http.ResponseWriter, statusCode int, payload interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		log.Printf("Failed to encode JSON response: %v", err)
+	}
+}
+
 func HandleSubmitPDU(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") || strings.TrimPrefix(authHeader, "Bearer ") != apiToken {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		jsonResponse(w, http.StatusUnauthorized, map[string]interface{}{
+			"status":  "error",
+			"message": "Unauthorized",
+		})
 		return
 	}
 
 	var pduReq PDURequest
 	if err := json.NewDecoder(r.Body).Decode(&pduReq); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		jsonResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "Invalid request payload",
+		})
 		return
 	}
 
 	pdu := PDU{RawPDU: pduReq.RawPDU}
 	if err := db.Create(&pdu).Error; err != nil {
-		http.Error(w, "Failed to save PDU", http.StatusInternalServerError)
+		jsonResponse(w, http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": "Failed to save PDU",
+		})
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_, err := fmt.Fprint(w, "PDU saved successfully")
-	if err != nil {
-		return
-	}
+	jsonResponse(w, http.StatusCreated, map[string]interface{}{
+		"status": "success",
+		"id":     pdu.ID,
+	})
 }
 
 func main() {
